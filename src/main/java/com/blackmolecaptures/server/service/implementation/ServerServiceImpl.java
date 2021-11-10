@@ -1,6 +1,5 @@
 package com.blackmolecaptures.server.service.implementation;
 
-import com.blackmolecaptures.server.enumeration.Status;
 import com.blackmolecaptures.server.model.Server;
 import com.blackmolecaptures.server.repo.ServerRepo;
 import com.blackmolecaptures.server.service.ServerService;
@@ -16,10 +15,13 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Random;
 
-@RequiredArgsConstructor
-@Service
-@Transactional
-@Slf4j
+import static com.blackmolecaptures.server.enumeration.Status.SERVER_DOWN;
+import static com.blackmolecaptures.server.enumeration.Status.SERVER_UP;
+
+@RequiredArgsConstructor // Lombok facilitates the dependency injection using this annotation, by creating a constructor for all the global variables defines within the class.
+@Service // To state that this is a service class
+@Transactional // To make it transactional: that here JPA transactions will happen
+@Slf4j // To facilitate logging.
 public class ServerServiceImpl implements ServerService {
 
     private final ServerRepo serverRepo;
@@ -28,7 +30,7 @@ public class ServerServiceImpl implements ServerService {
     public Server create(Server server) {
         log.info("Saving new server : {}", server.getName());
         // Setting image for the server
-        //server.setImageUrl(setServerImageUrl());
+        server.setImageUrl(setServerImageUrl());
 
         return serverRepo.save(server);
     }
@@ -43,7 +45,7 @@ public class ServerServiceImpl implements ServerService {
         log.info("Pinging Server IP : {}", ipaddress);
         Server server = serverRepo.findByIpAddress(ipaddress);
         InetAddress address = InetAddress.getByName(ipaddress);
-        server.setStatus(address.isReachable(10000)? Status.SERVER_UP : Status.SERVER_DOWN);
+        server.setStatus(address.isReachable(10000)? SERVER_UP : SERVER_DOWN);
         serverRepo.save(server);
         return server;
     }
